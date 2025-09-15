@@ -7,16 +7,23 @@ struct Cli {
     path: std::path::PathBuf
 }
 
-fn main() {
+// dyn means dynamic dispatch.
+// dyn Error : “some type that implements the Error trait.” and “I don’t care which concrete error it is, just treat it like an Error.”
+// Box<dyn Error> : “Box is a heap pointer to some type that implements Error, but we don’t know its size or exact type at compile time.
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
-    let file = std::fs::File::open(&args.path).expect("could not open file");
-    let reader = std::io::BufReader::new(file);
+    let file = std::fs::File::open(&args.path);
+    let content = match file {
+        Ok(content) => { content },
+        Err(error) => { return Err(error.into()); }
+    };
+    let reader = std::io::BufReader::new(content);
     for line_result in reader.lines() {
-        let line = line_result.expect("could not read line");
+        let line = line_result?;
         if line.contains(&args.pattern) {
             println!("{}", line);
         }
     }
 
-    println!("pattern: {:?}, path: {:?}", args.pattern, args.path);
+    Ok(())
 }
