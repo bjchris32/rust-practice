@@ -12,12 +12,8 @@ struct Cli {
 // Box<dyn Error> : “Box is a heap pointer to some type that implements Error, but we don’t know its size or exact type at compile time.
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Cli::parse();
-    let file = std::fs::File::open(&args.path);
-    let content = match file {
-        Ok(content) => { content },
-        Err(error) => { return Err(error.into()); }
-    };
-    let reader = std::io::BufReader::new(content);
+    let file = std::fs::File::open(&args.path)?;
+    let reader = std::io::BufReader::new(file);
     for line_result in reader.lines() {
         let line = line_result?;
         if line.contains(&args.pattern) {
