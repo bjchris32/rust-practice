@@ -2,7 +2,9 @@ use clap::Parser;
 use std::io::BufRead;
 use anyhow::{Context, Result};
 use std::io::{self, Write};
-
+use indicatif::ProgressBar;
+use std::time::Duration; // optional: sleep 50 ms to observe the progress bar
+use std::thread; // optional: sleep 50 ms to observe the progress bar
 
 #[derive(Parser)]
 struct Cli {
@@ -23,12 +25,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let handle = stdout.lock(); // lock implement the Write trait
     let mut writer = io::BufWriter::new(handle); // BufWriter accept anything with Write trait
 
+    let pb = ProgressBar::new(100);
+
     for line_result in reader.lines() {
         let line = line_result?;
         if line.contains(&args.pattern) {
             writeln!(writer, "{}", line)?;
+            thread::sleep(Duration::from_millis(50)); // optional: sleep 50 ms to observe the progress bar
         }
+        pb.inc(1);
     }
+
+    pb.finish_with_message("done");
 
     Ok(())
 }
