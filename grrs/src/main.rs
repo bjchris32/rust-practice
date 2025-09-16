@@ -1,6 +1,8 @@
 use clap::Parser;
 use std::io::BufRead;
 use anyhow::{Context, Result};
+use std::io::{self, Write};
+
 
 #[derive(Parser)]
 struct Cli {
@@ -16,10 +18,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::File::open(&args.path)
         .with_context(|| format!("could not read file `{}`", &args.path.display()))?;
     let reader = std::io::BufReader::new(file);
+
+    let stdout = io::stdout(); // get the global stdout entity
+    let handle = stdout.lock(); // lock implement the Write trait
+    let mut writer = io::BufWriter::new(handle); // BufWriter accept anything with Write trait
+
     for line_result in reader.lines() {
         let line = line_result?;
         if line.contains(&args.pattern) {
-            println!("{}", line);
+            writeln!(writer, "{}", line)?;
         }
     }
 
