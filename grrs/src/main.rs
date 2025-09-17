@@ -40,3 +40,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
+
+fn answer() -> i32 {
+    42
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_answer_validity() {
+        assert_eq!(answer(), 42);
+    }
+}
