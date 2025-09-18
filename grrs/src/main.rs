@@ -12,6 +12,15 @@ struct Cli {
     path: std::path::PathBuf
 }
 
+fn find_match(line: &str, pattern: &str, mut writer: impl std::io::Write) -> Result<(), Box<dyn std::error::Error>> {
+    if line.contains(pattern) {
+        writeln!(writer, "{}", line)?;
+        thread::sleep(Duration::from_millis(50)); // optional: sleep 50 ms to observe the progress bar
+    }
+
+    Ok(())
+}
+
 // dyn means dynamic dispatch.
 // dyn Error : “some type that implements the Error trait.” and “I don’t care which concrete error it is, just treat it like an Error.”
 // Box<dyn Error> : “Box is a heap pointer to some type that implements Error, but we don’t know its size or exact type at compile time.
@@ -29,10 +38,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for line_result in reader.lines() {
         let line = line_result?;
-        if line.contains(&args.pattern) {
-            writeln!(writer, "{}", line)?;
-            thread::sleep(Duration::from_millis(50)); // optional: sleep 50 ms to observe the progress bar
-        }
+        // TODO: handle the returned value from find_match
+        find_match(&line, &args.pattern, &mut writer);
         pb.inc(1);
     }
 
@@ -52,5 +59,13 @@ mod tests {
     #[test]
     fn check_answer_validity() {
         assert_eq!(answer(), 42);
+    }
+
+    #[test]
+    fn find_a_match() {
+        let mut result = Vec::new();
+        // TODO: handle the returned value from find_match
+        find_match("lorem ipsum", "lorem", &mut result);
+        assert_eq!(result, b"lorem ipsum\n");
     }
 }
