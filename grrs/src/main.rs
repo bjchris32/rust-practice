@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::io::BufRead;
 use anyhow::{Context, Result};
-use std::io::{self, Write};
+use std::io::{self};
 use indicatif::ProgressBar;
 use std::time::Duration; // optional: sleep 50 ms to observe the progress bar
 use std::thread; // optional: sleep 50 ms to observe the progress bar
@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for line_result in reader.lines() {
         let line = line_result?;
         // TODO: handle the returned value from find_match
-        find_match(&line, &args.pattern, &mut writer);
+        let _ = find_match(&line, &args.pattern, &mut writer);
         pb.inc(1);
     }
 
@@ -62,10 +62,10 @@ mod tests {
     }
 
     #[test]
-    fn find_a_match() {
+    fn test_find_match() {
         let mut result = Vec::new();
         // TODO: handle the returned value from find_match
-        find_match("lorem ipsum", "lorem", &mut result);
+        let _ = find_match("lorem ipsum", "lorem", &mut result);
         assert_eq!(result, b"lorem ipsum\n");
     }
 }
