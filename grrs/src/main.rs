@@ -12,12 +12,21 @@ struct Cli {
     path: std::path::PathBuf
 }
 
-fn find_match(line: &str, pattern: &str, mut writer: impl std::io::Write) -> Result<(), Box<dyn std::error::Error>> {
+fn find_match(line: &str, pattern: &str, writer: &mut impl std::io::Write) -> Result<(), Box<dyn std::error::Error>> {
     if line.contains(pattern) {
         writeln!(writer, "{}", line)?;
         thread::sleep(Duration::from_millis(50)); // optional: sleep 50 ms to observe the progress bar
     }
 
+    Ok(())
+}
+
+fn find_matches<R: std::io::Read>(reader: std::io::BufReader<R>, pb: &ProgressBar, pattern: &str, mut writer: impl std::io::Write) -> Result<(), Box<dyn std::error::Error>> {
+    for line_result in reader.lines() {
+        let line = line_result?;
+        find_match(&line, pattern, &mut writer)?;
+        pb.inc(1);
+    }
     Ok(())
 }
 
@@ -33,14 +42,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stdout = io::stdout(); // get the global stdout entity
     let handle = stdout.lock(); // lock implement the Write trait
     let mut writer = io::BufWriter::new(handle); // BufWriter accept anything with Write trait
-
     let pb = ProgressBar::new(100);
 
-    for line_result in reader.lines() {
-        let line = line_result?;
-        let _ = find_match(&line, &args.pattern, &mut writer);
-        pb.inc(1);
-    }
+    find_matches(reader, &pb, &args.pattern, &mut writer)?;
 
     pb.finish_with_message("done");
 
@@ -72,5 +76,22 @@ mod tests {
         let mut result = Vec::new();
         let _ = find_match("lorem ipsum", "abc", &mut result);
         assert_eq!(result, b"");
+    }
+
+    #[test]
+    fn test_find_matches() {
+        use std::io::Cursor;
+        let input = b"lorem ipsum\ndolor sit amet\nlorem dolor\nconsectetur adipiscing";
+        let reader = std::io::BufReader::new(Cursor::new(input));
+        let pb = ProgressBar::new(4); // dummy
+        let mut writer = Vec::new();
+        let result = find_matches(reader, &pb, "lorem", &mut writer);
+
+        assert!(result.is_ok());
+        let output = String::from_utf8(writer).unwrap();
+        assert!(output.contains("lorem ipsum"));
+        assert!(output.contains("lorem dolor"));
+        assert!(!output.contains("dolor sit amet"));
+        assert!(!output.contains("consectetur adipiscing"));
     }
 }
