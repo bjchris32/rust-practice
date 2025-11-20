@@ -38,7 +38,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     for line_result in reader.lines() {
         let line = line_result?;
-        // TODO: handle the returned value from find_match
         let _ = find_match(&line, &args.pattern, &mut writer);
         pb.inc(1);
     }
@@ -64,8 +63,14 @@ mod tests {
     #[test]
     fn test_find_match() {
         let mut result = Vec::new();
-        // TODO: handle the returned value from find_match
         let _ = find_match("lorem ipsum", "lorem", &mut result);
         assert_eq!(result, b"lorem ipsum\n");
+    }
+
+    #[test]
+    fn test_find_no_match() {
+        let mut result = Vec::new();
+        let _ = find_match("lorem ipsum", "abc", &mut result);
+        assert_eq!(result, b"");
     }
 }
