@@ -3,31 +3,11 @@ use std::io::BufRead;
 use anyhow::{Context, Result};
 use std::io::{self};
 use indicatif::ProgressBar;
-use std::time::Duration; // optional: sleep 50 ms to observe the progress bar
-use std::thread; // optional: sleep 50 ms to observe the progress bar
 
 #[derive(Parser)]
 struct Cli {
     pattern: String,
     path: std::path::PathBuf
-}
-
-fn find_match(line: &str, pattern: &str, writer: &mut impl std::io::Write) -> Result<(), Box<dyn std::error::Error>> {
-    if line.contains(pattern) {
-        writeln!(writer, "{}", line)?;
-        thread::sleep(Duration::from_millis(50)); // optional: sleep 50 ms to observe the progress bar
-    }
-
-    Ok(())
-}
-
-fn find_matches<R: std::io::Read>(reader: std::io::BufReader<R>, pb: &ProgressBar, pattern: &str, mut writer: impl std::io::Write) -> Result<(), Box<dyn std::error::Error>> {
-    for line_result in reader.lines() {
-        let line = line_result?;
-        find_match(&line, pattern, &mut writer)?;
-        pb.inc(1);
-    }
-    Ok(())
 }
 
 // dyn means dynamic dispatch.
@@ -44,54 +24,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut writer = io::BufWriter::new(handle); // BufWriter accept anything with Write trait
     let pb = ProgressBar::new(100);
 
-    find_matches(reader, &pb, &args.pattern, &mut writer)?;
+    grrs::find_matches(reader, &pb, &args.pattern, &mut writer)?;
 
     pb.finish_with_message("done");
 
     Ok(())
-}
-
-fn answer() -> i32 {
-    42
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn check_answer_validity() {
-        assert_eq!(answer(), 42);
-    }
-
-    #[test]
-    fn test_find_match() {
-        let mut result = Vec::new();
-        let _ = find_match("lorem ipsum", "lorem", &mut result);
-        assert_eq!(result, b"lorem ipsum\n");
-    }
-
-    #[test]
-    fn test_find_no_match() {
-        let mut result = Vec::new();
-        let _ = find_match("lorem ipsum", "abc", &mut result);
-        assert_eq!(result, b"");
-    }
-
-    #[test]
-    fn test_find_matches() {
-        use std::io::Cursor;
-        let input = b"lorem ipsum\ndolor sit amet\nlorem dolor\nconsectetur adipiscing";
-        let reader = std::io::BufReader::new(Cursor::new(input));
-        let pb = ProgressBar::new(4); // dummy
-        let mut writer = Vec::new();
-        let result = find_matches(reader, &pb, "lorem", &mut writer);
-
-        assert!(result.is_ok());
-        let output = String::from_utf8(writer).unwrap();
-        assert!(output.contains("lorem ipsum"));
-        assert!(output.contains("lorem dolor"));
-        assert!(!output.contains("dolor sit amet"));
-        assert!(!output.contains("consectetur adipiscing"));
-    }
 }
