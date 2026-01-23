@@ -1,4 +1,4 @@
-use grrs::*;
+use grrs_bj::*;
 use indicatif::ProgressBar;
 use assert_cmd::cargo::*; // Import cargo_bin_cmd! macro and methods
 use predicates::prelude::*; // Used for writing assertions
@@ -6,7 +6,7 @@ use assert_fs::fixture::FileWriteStr;
 
 #[test]
 fn file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = cargo_bin_cmd!("grrs");
+    let mut cmd = cargo_bin_cmd!("grrs-bj");
 
     cmd.arg("foobar").arg("test/file/doesnt/exist");
     cmd.assert()
@@ -52,7 +52,7 @@ fn find_content_in_file() -> Result<(), Box<dyn std::error::Error>> {
     let file = assert_fs::NamedTempFile::new("sample.txt")?;
     file.write_str("A test\nActual content\nMore content\nAnother test")?;
 
-    let mut cmd = cargo_bin_cmd!("grrs");
+    let mut cmd = cargo_bin_cmd!("grrs-bj");
     cmd.arg("test").arg(file.path());
     cmd.assert()
         .success()

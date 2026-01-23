@@ -1,8 +1,8 @@
 [package]
-name = "grrs"
+name = "grrs-bj"
 edition = "2024"
 version = "0.1.0"
-authors = ["Your Name <your@email.com>"]
+authors = ["Baojhih <bjchris32@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "A tool to search files"
 homepage = "https://github.com/bjchris32/rust-practice/tree/main/grrs"

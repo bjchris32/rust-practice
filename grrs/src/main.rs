@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut writer = io::BufWriter::new(handle); // BufWriter accept anything with Write trait
     let pb = ProgressBar::new(100);
 
-    grrs::find_matches(reader, &pb, &args.pattern, &mut writer)?;
+    grrs_bj::find_matches(reader, &pb, &args.pattern, &mut writer)?;
 
     pb.finish_with_message("done");
 

@@ -296,7 +296,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "grrs"
+name = "grrs-bj"
 version = "0.1.0"
 dependencies = [
  "anyhow",
