@@ -1,7 +1,13 @@
 [package]
 name = "grrs"
 version = "0.1.0"
-edition = "2024"
+authors = ["Your Name <your@email.com>"]
+license = "MIT OR Apache-2.0"
+description = "A tool to search files"
+homepage = "https://github.com/bjchris32/rust-practice/tree/main/grrs"
+repository = "https://github.com/bjchris32/rust-practice/tree/main/grrs"
+keywords = ["cli", "search", "demo"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.0", features = ["derive"] }
